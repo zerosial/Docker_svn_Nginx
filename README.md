@@ -14,6 +14,7 @@
 Docker가 설치된 상태로
 
 빌드
+
 `docker-compose build`
 
 컨테이너 배포
