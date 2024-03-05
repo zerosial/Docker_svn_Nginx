@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  node-container:
+    build: # Node.js 애플리케이션 빌드 설정
+      context: .
+      dockerfile: Dockerfile.node
+    networks:
+      - mm-app-network # 사용할 네트워크 정의
+
+  nginx-container:
+    build: # Nginx 서버 빌드 설정
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "8720:8720" # 호스트와 컨테이너 간 포트 매핑
+    depends_on:
+      - node-container # node-container에 의존성 명시
+    networks:
+      - mm-app-network # 사용할 네트워크 정의
+
+networks:
+  mm-app-network: # 네트워크 정의

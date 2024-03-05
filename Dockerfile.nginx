@@ -1,0 +1,5 @@
+# Nginx 환경 설정
+FROM nginx:alpine
+
+# Nginx 구성 파일 복사
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf

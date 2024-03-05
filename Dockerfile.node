@@ -1,0 +1,31 @@
+# Node.js 기반 빌드 스테이지
+FROM node:16.20.1
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 필수 패키지 설치
+RUN apt-get update && apt-get install -y subversion cron
+
+# 애플리케이션 파일 및 설정 복사
+COPY . /app
+
+# SVN에서 프로젝트 코드 체크아웃
+RUN svn checkout https://www.pineone.net/svn/LGUPlus_MobileManager/Src/trunk/Web/branch/MobileManager_24-4 --username=zerosial --password='renag1010!@' --non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other .
+
+# 기존 package.json에서 필요없는 의존성을 빼고 필수 패키지만 설정
+COPY build-package.json /app/package.json
+
+# live-server 글로벌 설치
+RUN npm install -g live-server
+
+# 의존성 설치 및 문서 생성
+RUN npm install
+RUN npm run docs || true && ls -la /app/docs
+
+# Cron 작업 설정 및 주기적인 문서갱신 관리파일
+RUN chmod +x /app/update_docs.sh
+RUN (crontab -l ; echo "0 0 * * * /app/update_docs.sh >> /var/log/cron.log 2>&1") | crontab -
+
+# Live-server 실행 및 cron 시작
+CMD cron -f & live-server /app/docs --port=8080 --host=0.0.0.0 --entry-file=index.html
