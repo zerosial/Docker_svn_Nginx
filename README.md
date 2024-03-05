@@ -1,4 +1,5 @@
 ### **Docker를 이용한 Node.js 및 Nginx 환경 구성 및 최적화 가이드**
+![chrome_pAKVMbTrbG](https://github.com/zerosial/Docker_svn_Nginx/assets/97251710/a13a5da8-65e3-4e50-8423-0d6868f88a63)
 
 ### 개요
 
@@ -6,7 +7,8 @@
 
 ### 배포 파일 및 환경
 
-![chrome_fgiy0ZuGHY.png](https://prod-files-secure.s3.us-west-2.amazonaws.com/9bd9f28b-e2ed-423c-9cfa-a908eb47dd3d/ee818109-9c5a-4fd8-a6ee-841f98ccbb41/chrome_fgiy0ZuGHY.png)
+![chrome_fgiy0ZuGHY](https://github.com/zerosial/Docker_svn_Nginx/assets/97251710/611703a4-9d50-4a05-90c5-dc2851e14668)
+
 
 해당 폴더를 터미널 혹은 VSC를 통하여 열고
 Docker가 설치된 상태로
@@ -26,12 +28,12 @@ update_docs.sh 및 Dockerfile.node의 svn 체크아웃 및 업데이트 시 URL 
 
 **포트 변경**
 
-기본적으로 도커 내부에 8080에서 live-server가 호스팅되며 해당 컨테이너를 `nginx/default.conf` 를 통해 배포하게 됩니다. 포트 설정이 변경될 경우 해당 파일의 listen 부분에서 포트를 변경하시면 됩니다.
+기본적으로 도커 내부에 8080에서 live-server가 호스팅되며 해당 컨테이너를 `nginx/default.conf` 를 통해 배포하게 됩니다. 포트 설정이 변경될 경우 해당 파일의 listen 부분에서 포트를 변경하고 **`docker-compose.yml`** 에서 추가적으로 8720:8720으로 작업된 부분을 수정하시면 됩니다.
 
 **생성 주기 및 시간 관리**
 `RUN (crontab -l ; echo "* * * * * /app/update_docs.sh >> /var/log/cron.log 2>&1") | crontab -` 위의 명령어를 통해 주기 등록됩니다.
 
-**`* * * * *`**: 크론 스케줄 표현식으로, 5개의 별표(\*)는 분, 시, 일, 월, 요일을 나타내며, 여기서 모두 별표로 설정되어 있으므로 매분마다 해당 명령을 실행하라는 의미입니다.
+**`* * * * *`**: 크론 스케줄 표현식으로, 5개의 별표(*)는 분, 시, 일, 월, 요일을 나타내며, 여기서 모두 별표로 설정되어 있으므로 매분마다 해당 명령을 실행하라는 의미입니다.
 
 **`0 0 * * *`**: 이 표현은 매일 자정(0시 0분)에 명령을 실행하라는 의미입니다.
 
@@ -40,57 +42,57 @@ update_docs.sh 및 Dockerfile.node의 svn 체크아웃 및 업데이트 시 URL 
 ### 환경 설정
 
 1. **Node.js 컨테이너 설정**
-   - Node.js 기반의 Docker 이미지를 사용하여 애플리케이션 빌드 환경을 구성합니다.
-   - **`WORKDIR`**을 **`/app`**으로 설정하여 애플리케이션의 작업 디렉토리를 지정합니다.
-   - 필요한 시스템 패키지(**`subversion`**, **`cron`**)를 설치합니다.
-   - SVN에서 프로젝트 코드를 체크아웃하고, 필요한 npm 패키지(**`live-server`**)를 글로벌로 설치합니다.
-   - **`npm install`**을 실행하여 프로젝트 의존성을 설치합니다.
-   - 문서 생성 스크립트(**`npm run docs`**)를 실행하여 프로젝트 문서를 생성합니다.
+    - Node.js 기반의 Docker 이미지를 사용하여 애플리케이션 빌드 환경을 구성합니다.
+    - **`WORKDIR`**을 **`/app`**으로 설정하여 애플리케이션의 작업 디렉토리를 지정합니다.
+    - 필요한 시스템 패키지(**`subversion`**, **`cron`**)를 설치합니다.
+    - SVN에서 프로젝트 코드를 체크아웃하고, 필요한 npm 패키지(**`live-server`**)를 글로벌로 설치합니다.
+    - **`npm install`**을 실행하여 프로젝트 의존성을 설치합니다.
+    - 문서 생성 스크립트(**`npm run docs`**)를 실행하여 프로젝트 문서를 생성합니다.
 2. **Nginx 컨테이너 설정**
-   - Nginx를 사용하여 Node.js 애플리케이션을 프록시하는 웹 서버 환경을 구성합니다.
-   - Nginx의 설정 파일을 커스터마이즈하여 Node.js 애플리케이션으로 요청을 전달합니다.
-   - 외부 요청을 처리할 수 있도록 포트 매핑을 구성합니다.
+    - Nginx를 사용하여 Node.js 애플리케이션을 프록시하는 웹 서버 환경을 구성합니다.
+    - Nginx의 설정 파일을 커스터마이즈하여 Node.js 애플리케이션으로 요청을 전달합니다.
+    - 외부 요청을 처리할 수 있도록 포트 매핑을 구성합니다.
 3. **Docker Compose를 이용한 서비스 관리**
-   - **`docker-compose.yml`** 파일을 작성하여 Node.js와 Nginx 컨테이너를 정의하고 네트워크를 통해 연결합니다.
-   - 볼륨 마운트를 사용하여 개발 중인 코드를 컨테이너와 동기화할 수 있지만, 볼륨 마운트가 프로덕션 빌드에 영향을 미치지 않도록 주의합니다.
+    - **`docker-compose.yml`** 파일을 작성하여 Node.js와 Nginx 컨테이너를 정의하고 네트워크를 통해 연결합니다.
+    - 볼륨 마운트를 사용하여 개발 중인 코드를 컨테이너와 동기화할 수 있지만, 볼륨 마운트가 프로덕션 빌드에 영향을 미치지 않도록 주의합니다.
 
 ### 문제 해결 및 최적화
 
 1. **파일 누락 문제**
-
-   - Docker Compose의 볼륨 마운트 설정으로 인해 컨테이너 내 파일이 호스트와 동기화되면서 기대한 파일이 누락될 수 있습니다. 해결책으로 볼륨 마운트 설정을 재검토하거나 개발과 배포 환경을 분리합니다.
-
-   이번 환경의 경우 checkout 한 svn 파일이 도커 내 /app에 배치되지 않아 새부 설정을 확인하다 보니 Docker-compose에서 해당 부분이 발견되어 수정하였습니다.
-
-   As-is
-
-   ```json
-   // As-is
-   	node-container:
-       build: # Node.js 애플리케이션 빌드 설정
-         context: .
-         dockerfile: Dockerfile.node
-       **volumes:
-         - .:/app**
-       networks:
-         - mm-app-network # 사용할 네트워크 정의
-
-   // To-be
-   	node-container:
-       build: # Node.js 애플리케이션 빌드 설정
-         context: .
-         dockerfile: Dockerfile.node
-       networks:
-         - mm-app-network # 사용할 네트워크 정의
-
-   ```
-
+    - Docker Compose의 볼륨 마운트 설정으로 인해 컨테이너 내 파일이 호스트와 동기화되면서 기대한 파일이 누락될 수 있습니다. 해결책으로 볼륨 마운트 설정을 재검토하거나 개발과 배포 환경을 분리합니다.
+    
+    이번 환경의 경우 checkout 한 svn 파일이 도커 내 /app에 배치되지 않아 새부 설정을 확인하다 보니 Docker-compose에서 해당 부분이 발견되어 수정하였습니다.
+    
+    As-is
+    
+    ```json
+    // As-is  
+    	node-container:
+        build: # Node.js 애플리케이션 빌드 설정
+          context: .
+          dockerfile: Dockerfile.node
+        **volumes:
+          - .:/app**
+        networks:
+          - mm-app-network # 사용할 네트워크 정의
+    
+    // To-be
+    	node-container:
+        build: # Node.js 애플리케이션 빌드 설정
+          context: .
+          dockerfile: Dockerfile.node
+        networks:
+          - mm-app-network # 사용할 네트워크 정의
+    
+    ```
+    
 2. **컨테이너 내부의 폴더 및 파일 확인 (log)**
-   - 중간 중간 `RUN npm run docs && ls -la /app/docs` 와 같이 ls -la 명령어를 통해 빌드된 도커의 파일들을 확인하며 `/var/log/cron.log` 파일을 생성하는 로직을 통해 백그라운드에서 실행되는 cron이 정상 작동하는지 확인했습니다.
+    - 중간 중간 `RUN npm run docs && ls -la /app/docs` 와 같이 ls -la 명령어를 통해 빌드된 도커의 파일들을 확인하며  `/var/log/cron.log` 파일을 생성하는 로직을 통해 백그라운드에서 실행되는 cron이 정상 작동하는지 확인했습니다.
 3. **환경 변수 및 PATH 설정**
-   - 글로벌로 설치된 npm등의 패키지가 update_docs.sh에서 cron으로 재실행 될때 작동하지 않는 문제는 **`PATH`** 환경 변수 설정을 통해 해결할 수 있습니다. Dockerfile에서 환경 변수를 적절히 설정합니다.
+    - 글로벌로 설치된 npm등의 패키지가 update_docs.sh에서 cron으로 재실행 될때 작동하지 않는 문제는 **`PATH`** 환경 변수 설정을 통해 해결할 수 있습니다. Dockerfile에서 환경 변수를 적절히 설정합니다.
 4. **SVN의 SSL 만료 오류**
-   - 해당 오류의 경우 update 및 checkout 시 마지막 명령어에 `--non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other` 를 추가함으로 해결하였습니다.
+    - 해당 오류의 경우 update 및 checkout 시 마지막 명령어에 `--non-interactive --trust-server-cert-failures=unknown-ca,cn-mismatch,expired,not-yet-valid,other` 를 추가함으로 해결하였습니다.
+    
 
 ## 코드 별 설명
 
@@ -111,6 +113,7 @@ update_docs.sh 및 Dockerfile.node의 svn 체크아웃 및 업데이트 시 URL 
     "docs": "jsdoc -c jsdoc.conf.json" // jsdoc 명령어를 이용해 문서를 생성하는 스크립트
   }
 }
+
 ```
 
 ### **docker-compose.yml 설명 및 주석**
